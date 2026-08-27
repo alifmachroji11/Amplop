@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Amplop
 
-## Getting Started
+Nggak perlu catat manual lagi. Amplop baca screenshot bukti transfer/e-wallet (GoPay, OVO, DANA, BCA, QRIS, m-banking, dll) dan nyusun jadi cerita keuangan mingguan yang gampang dibaca.
 
-First, run the development server:
+**Production:** https://amplop-green.vercel.app
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Cara kerja
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. **Unggah** — upload screenshot bukti transfer/notifikasi pembayaran dari galeri, sekaligus banyak.
+2. **Baca** — Gemini vision baca merchant, nominal, tanggal, dan jenis transaksinya secara otomatis.
+3. **Cerita** — hasilnya disusun jadi ringkasan mingguan (masuk/keluar), bukan tabel angka mentah.
+4. **Koreksi** — kalau kategori atau datanya kurang pas, tinggal ketuk buat ubah.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Nggak ada login/akun — identitas user cuma session cookie anonim (`amplop_sid`, lihat `lib/session.ts`), jadi data terikat ke browser tempat upload dilakukan.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Stack
 
-## Learn More
+- **Next.js 16** (App Router) + React 19 + TypeScript
+- **Tailwind CSS 4**
+- **Supabase** — Postgres (tabel `uploads`, `transactions`) + Storage (bucket `screenshots`)
+- **Gemini** (`@google/genai`, model `gemini-3.6-flash`) — parsing screenshot ke data terstruktur, divalidasi pakai Zod
 
-To learn more about Next.js, take a look at the following resources:
+## Struktur halaman
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Route | Fungsi |
+|---|---|
+| `/` | Landing |
+| `/upload` | Unggah screenshot |
+| `/story`, `/story/[weekId]` | Cerita keuangan mingguan |
+| `/transactions` | Daftar transaksi + koreksi kategori |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+API internal: `app/api/upload`, `app/api/parse`, `app/api/transactions/[id]`.
 
-## Deploy on Vercel
+## Setup lokal
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Salin `.env.local.example` ke `.env.local`, isi:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `SUPABASE_SERVICE_ROLE_KEY` — dipakai server-only (`lib/supabase/server.ts`), jangan pernah diekspos ke browser
+   - `GEMINI_API_KEY`
+2. Jalankan migration `supabase/migrations/0001_init.sql` ke project Supabase kamu.
+3. Install dependency dan jalankan dev server:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   ```bash
+   npm install
+   npm run dev
+   ```
+
+4. Buka [http://localhost:3000](http://localhost:3000).
+
+## Catatan keamanan
+
+Semua akses DB lewat server (`service_role` key), nggak ada client Supabase di browser. RLS aktif di `uploads` dan `transactions` tanpa policy — sengaja deny-all buat `anon`/`authenticated`, karena satu-satunya jalur akses yang sah adalah lewat API route server ini.
