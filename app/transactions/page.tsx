@@ -27,7 +27,7 @@ export default async function TransactionsPage(props: PageProps<'/transactions'>
   const transactions = (data ?? []) as Transaction[];
 
   return (
-    <PhoneShell>
+    <PhoneShell active="transactions">
       <div className="min-h-[800px] px-6 pt-8 pb-10">
         <div className="mb-1.5 font-serif text-2xl text-ink">Yang berhasil terbaca</div>
         <p className="mb-5.5 text-sm leading-relaxed text-ink-soft">

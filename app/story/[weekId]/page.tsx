@@ -26,7 +26,7 @@ export default async function StoryPage(props: PageProps<'/story/[weekId]'>) {
   const story = computeStory(transactions, start);
 
   return (
-    <PhoneShell>
+    <PhoneShell active="story">
       <div className="min-h-[800px] px-6.5 pt-9 pb-12.5">
         <StoryHeader dateRange={formatDateRangeId(start, end)} />
 
