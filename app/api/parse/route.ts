@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import { getSessionId } from '@/lib/session';
+import { getAuthContext, withOwner } from '@/lib/authContext';
 import { supabaseServer } from '@/lib/supabase/server';
 import { parseScreenshot } from '@/lib/gemini';
 
 export async function POST(request: Request) {
-  const sessionId = await getSessionId();
+  const ctx = await getAuthContext();
   const { uploadId } = await request.json();
 
   if (typeof uploadId !== 'string') {
@@ -13,12 +13,10 @@ export async function POST(request: Request) {
 
   const supabase = supabaseServer();
 
-  const { data: upload, error: uploadError } = await supabase
-    .from('uploads')
-    .select('*')
-    .eq('id', uploadId)
-    .eq('session_id', sessionId)
-    .single();
+  const { data: upload, error: uploadError } = await withOwner(
+    supabase.from('uploads').select('*').eq('id', uploadId),
+    ctx
+  ).single();
 
   if (uploadError || !upload) {
     return NextResponse.json({ error: 'upload not found' }, { status: 404 });
@@ -57,7 +55,8 @@ export async function POST(request: Request) {
       .from('transactions')
       .upsert(
         {
-          session_id: sessionId,
+          session_id: ctx.sessionId,
+          user_id: ctx.userId,
           upload_id: uploadId,
           merchant: result.merchant,
           occurred_at: result.date,

@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { getSessionId } from '@/lib/session';
+import { getAuthContext } from '@/lib/authContext';
 import { supabaseServer } from '@/lib/supabase/server';
 
 export async function POST(request: Request) {
-  const sessionId = await getSessionId();
+  const ctx = await getAuthContext();
   const formData = await request.formData();
   const file = formData.get('file');
 
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
   const supabase = supabaseServer();
   const ext = file.name.split('.').pop() || 'jpg';
   const uploadId = crypto.randomUUID();
-  const storagePath = `${sessionId}/${uploadId}.${ext}`;
+  const storagePath = `${ctx.sessionId}/${uploadId}.${ext}`;
 
   const { error: storageError } = await supabase.storage
     .from('screenshots')
@@ -26,7 +26,8 @@ export async function POST(request: Request) {
 
   const { error: insertError } = await supabase.from('uploads').insert({
     id: uploadId,
-    session_id: sessionId,
+    session_id: ctx.sessionId,
+    user_id: ctx.userId,
     storage_path: storagePath,
     status: 'uploaded',
   });

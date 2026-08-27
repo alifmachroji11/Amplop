@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { PhoneShell } from '@/components/ui/PhoneShell';
 import { TransactionsList } from '@/components/transactions/TransactionsList';
-import { getSessionId } from '@/lib/session';
+import { getAuthContext, withOwner } from '@/lib/authContext';
 import { supabaseServer } from '@/lib/supabase/server';
 import { weekRange } from '@/lib/weeks';
 import type { Transaction } from '@/lib/types';
@@ -9,14 +9,12 @@ import type { Transaction } from '@/lib/types';
 export default async function TransactionsPage(props: PageProps<'/transactions'>) {
   const { week } = await props.searchParams;
   const weekId = typeof week === 'string' ? week : undefined;
-  const sessionId = await getSessionId();
+  const auth = await getAuthContext();
 
   const supabase = supabaseServer();
-  let query = supabase
-    .from('transactions')
-    .select('*')
-    .eq('session_id', sessionId)
-    .order('occurred_at', { ascending: false });
+  let query = withOwner(supabase.from('transactions').select('*'), auth).order('occurred_at', {
+    ascending: false,
+  });
 
   if (weekId) {
     const { start, end } = weekRange(weekId);

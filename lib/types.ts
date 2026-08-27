@@ -5,6 +5,7 @@ export type UploadStatus = 'uploaded' | 'processing' | 'done' | 'failed';
 export type Upload = {
   id: string;
   session_id: string;
+  user_id: string | null;
   storage_path: string;
   status: UploadStatus;
   error: string | null;
@@ -14,6 +15,7 @@ export type Upload = {
 export type Transaction = {
   id: string;
   session_id: string;
+  user_id: string | null;
   upload_id: string | null;
   merchant: string;
   occurred_at: string;

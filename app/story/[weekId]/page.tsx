@@ -5,7 +5,7 @@ import { StoryHeader } from '@/components/story/StoryHeader';
 import { SummaryCard } from '@/components/story/SummaryCard';
 import { CategoryHighlight } from '@/components/story/CategoryHighlight';
 import { NarrativeBlock } from '@/components/story/NarrativeBlock';
-import { getSessionId } from '@/lib/session';
+import { getAuthContext, withOwner } from '@/lib/authContext';
 import { supabaseServer } from '@/lib/supabase/server';
 import { weekRange } from '@/lib/weeks';
 import { formatDateRangeId } from '@/lib/format';
@@ -14,14 +14,11 @@ import type { Transaction } from '@/lib/types';
 
 export default async function StoryPage(props: PageProps<'/story/[weekId]'>) {
   const { weekId } = await props.params;
-  const sessionId = await getSessionId();
+  const auth = await getAuthContext();
   const { start, end } = weekRange(weekId);
 
   const supabase = supabaseServer();
-  const { data } = await supabase
-    .from('transactions')
-    .select('*')
-    .eq('session_id', sessionId)
+  const { data } = await withOwner(supabase.from('transactions').select('*'), auth)
     .gte('occurred_at', start.toISOString().slice(0, 10))
     .lte('occurred_at', end.toISOString().slice(0, 10));
 

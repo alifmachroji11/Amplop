@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getSessionId } from '@/lib/session';
+import { getAuthContext, withOwner } from '@/lib/authContext';
 import { supabaseServer } from '@/lib/supabase/server';
 import { CATEGORIES } from '@/lib/categories';
 
-export async function PATCH(request: Request, ctx: RouteContext<'/api/transactions/[id]'>) {
-  const { id } = await ctx.params;
-  const sessionId = await getSessionId();
+export async function PATCH(request: Request, routeCtx: RouteContext<'/api/transactions/[id]'>) {
+  const { id } = await routeCtx.params;
+  const auth = await getAuthContext();
   const { category } = await request.json();
 
   if (!CATEGORIES.includes(category)) {
@@ -14,11 +14,13 @@ export async function PATCH(request: Request, ctx: RouteContext<'/api/transactio
 
   const supabase = supabaseServer();
 
-  const { data, error } = await supabase
-    .from('transactions')
-    .update({ category, updated_at: new Date().toISOString() })
-    .eq('id', id)
-    .eq('session_id', sessionId)
+  const { data, error } = await withOwner(
+    supabase
+      .from('transactions')
+      .update({ category, updated_at: new Date().toISOString() })
+      .eq('id', id),
+    auth
+  )
     .select()
     .single();
 
