@@ -3,7 +3,7 @@ import { ThumbCell } from './ThumbCell';
 
 export function ThumbGrid({ items }: { items: ThumbItem[] }) {
   return (
-    <div className="mb-5 grid grid-cols-4 gap-2">
+    <div className="mb-5 grid grid-cols-4 gap-2 lg:grid-cols-6 lg:gap-3">
       {items.map((item) => (
         <ThumbCell key={item.id} item={item} />
       ))}

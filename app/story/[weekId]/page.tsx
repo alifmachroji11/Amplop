@@ -27,11 +27,11 @@ export default async function StoryPage(props: PageProps<'/story/[weekId]'>) {
 
   return (
     <PhoneShell active="story">
-      <div className="min-h-[800px] px-6.5 pt-9 pb-12.5">
+      <div className="min-h-[800px] px-6.5 pt-9 pb-12.5 lg:min-h-[520px] lg:max-w-[600px] lg:px-11 lg:pt-11 lg:pb-11">
         <StoryHeader dateRange={formatDateRangeId(start, end)} />
 
         <NarrativeBlock>
-          <span className="font-serif text-[21px] leading-relaxed text-ink">{story.trendText}</span>
+          <span className="font-serif text-[21px] leading-relaxed text-ink lg:text-[24px]">{story.trendText}</span>
         </NarrativeBlock>
 
         <SummaryCard masukCents={story.masukCents} keluarCents={story.keluarCents} />
