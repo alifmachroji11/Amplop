@@ -4,6 +4,10 @@ import { supabaseServer } from '@/lib/supabase/server';
 
 export async function POST(request: Request) {
   const ctx = await getAuthContext();
+  if (!ctx.userId) {
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  }
+
   const formData = await request.formData();
   const file = formData.get('file');
 

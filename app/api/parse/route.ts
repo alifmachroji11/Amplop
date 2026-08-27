@@ -5,6 +5,10 @@ import { parseScreenshot } from '@/lib/gemini';
 
 export async function POST(request: Request) {
   const ctx = await getAuthContext();
+  if (!ctx.userId) {
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  }
+
   const { uploadId } = await request.json();
 
   if (typeof uploadId !== 'string') {

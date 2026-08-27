@@ -3,6 +3,7 @@ import { LogoutButton } from '@/components/auth/LogoutButton';
 import type { NavKey } from './navKeys';
 
 const NAV: { key: NavKey; href: string; label: string }[] = [
+  { key: 'home', href: '/', label: 'Beranda' },
   { key: 'upload', href: '/upload', label: 'Unggah' },
   { key: 'story', href: '/story', label: 'Cerita' },
   { key: 'transactions', href: '/transactions', label: 'Transaksi' },

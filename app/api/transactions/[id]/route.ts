@@ -6,6 +6,10 @@ import { CATEGORIES } from '@/lib/categories';
 export async function PATCH(request: Request, routeCtx: RouteContext<'/api/transactions/[id]'>) {
   const { id } = await routeCtx.params;
   const auth = await getAuthContext();
+  if (!auth.userId) {
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  }
+
   const { category } = await request.json();
 
   if (!CATEGORIES.includes(category)) {

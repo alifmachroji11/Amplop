@@ -1,1 +1,1 @@
-export type NavKey = 'upload' | 'story' | 'transactions';
+export type NavKey = 'home' | 'upload' | 'story' | 'transactions';

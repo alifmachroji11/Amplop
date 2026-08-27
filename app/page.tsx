@@ -1,7 +1,8 @@
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import { Button } from '@/components/ui/Button';
+import { PhoneShell } from '@/components/ui/PhoneShell';
+import { HomeMenu } from '@/components/home/HomeMenu';
 import { StepItem } from '@/components/landing/StepItem';
+import { Button } from '@/components/ui/Button';
 import { getAuthUser } from '@/lib/supabase/authServer';
 
 const STEPS = [
@@ -12,7 +13,15 @@ const STEPS = [
 
 export default async function LandingPage() {
   const user = await getAuthUser();
-  if (user) redirect('/story');
+
+  if (user) {
+    const name = (user.user_metadata?.name as string | undefined) ?? null;
+    return (
+      <PhoneShell active="home">
+        <HomeMenu name={name} />
+      </PhoneShell>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-bg px-4 py-10 lg:flex-row lg:justify-center lg:gap-20 lg:px-16">
@@ -41,17 +50,12 @@ export default async function LandingPage() {
           </div>
 
           <div>
-            <Link href="/upload" className="block lg:inline-block">
-              <Button className="w-full lg:w-auto lg:px-10">Mulai unggah screenshot</Button>
+            <Link href="/auth/login" className="block lg:inline-block">
+              <Button className="w-full lg:w-auto lg:px-10">Masuk dengan Google</Button>
             </Link>
             <div className="mt-3.5 text-[13px] text-ink-faint lg:mt-4">
-              Datamu aman, semua diproses langsung di HP kamu.
-              <br />
-              Sudah pakai Amplop di HP lain?{' '}
-              <a href="/auth/login" className="font-medium text-sage underline underline-offset-2">
-                Masuk dengan Google
-              </a>{' '}
-              biar datanya nyambung.
+              Datamu aman, tersimpan di akun Google-mu — bisa dibuka lagi dari HP
+              atau laptop mana pun.
             </div>
           </div>
         </div>
