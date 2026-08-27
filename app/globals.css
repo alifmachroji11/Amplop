@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+:root {
+  --color-bg: oklch(0.93 0.01 80);
+  --color-surface: oklch(0.985 0.004 80);
+  --color-surface-muted: oklch(0.97 0.006 80);
+  --color-ink: oklch(0.25 0.02 80);
+  --color-ink-soft: oklch(0.42 0.02 80);
+  --color-ink-faint: oklch(0.55 0.02 80);
+  --color-border: oklch(0.88 0.01 80);
+  --color-sage: #8A9A7E;
+  --color-sage-ink: #5c6b52;
+  --color-sage-tint: oklch(0.93 0.03 145);
+  --color-sage-tint-2: oklch(0.96 0.03 145);
+  --color-income-bg: oklch(0.96 0.03 145);
+  --color-income-text: oklch(0.3 0.05 145);
+  --color-expense-bg: oklch(0.96 0.015 60);
+  --color-expense-text: oklch(0.4 0.04 60);
+}
+
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-surface-muted: var(--color-surface-muted);
+  --color-ink: var(--color-ink);
+  --color-ink-soft: var(--color-ink-soft);
+  --color-ink-faint: var(--color-ink-faint);
+  --color-border: var(--color-border);
+  --color-sage: var(--color-sage);
+  --color-sage-ink: var(--color-sage-ink);
+  --color-sage-tint: var(--color-sage-tint);
+  --color-sage-tint-2: var(--color-sage-tint-2);
+  --color-income-bg: var(--color-income-bg);
+  --color-income-text: var(--color-income-text);
+  --color-expense-bg: var(--color-expense-bg);
+  --color-expense-text: var(--color-expense-text);
+
+  --radius-card: 16px;
+  --radius-pill: 100px;
+  --radius-phone: 28px;
+
+  --shadow-phone: 0 30px 60px -20px oklch(0.2 0.02 80 / 0.25);
+
+  --font-serif: var(--font-lora);
+  --font-sans: var(--font-work-sans);
+}
+
+::selection {
+  background: var(--color-sage);
+  color: #fff;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: .35; }
+  50% { opacity: .9; }
+}

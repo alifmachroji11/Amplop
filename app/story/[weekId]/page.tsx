@@ -1,0 +1,69 @@
+import Link from 'next/link';
+import { PhoneShell } from '@/components/ui/PhoneShell';
+import { Button } from '@/components/ui/Button';
+import { StoryHeader } from '@/components/story/StoryHeader';
+import { SummaryCard } from '@/components/story/SummaryCard';
+import { CategoryHighlight } from '@/components/story/CategoryHighlight';
+import { NarrativeBlock } from '@/components/story/NarrativeBlock';
+import { getSessionId } from '@/lib/session';
+import { supabaseServer } from '@/lib/supabase/server';
+import { weekRange } from '@/lib/weeks';
+import { formatDateRangeId } from '@/lib/format';
+import { computeStory } from '@/lib/storyAggregate';
+import type { Transaction } from '@/lib/types';
+
+export default async function StoryPage(props: PageProps<'/story/[weekId]'>) {
+  const { weekId } = await props.params;
+  const sessionId = await getSessionId();
+  const { start, end } = weekRange(weekId);
+
+  const supabase = supabaseServer();
+  const { data } = await supabase
+    .from('transactions')
+    .select('*')
+    .eq('session_id', sessionId)
+    .gte('occurred_at', start.toISOString().slice(0, 10))
+    .lte('occurred_at', end.toISOString().slice(0, 10));
+
+  const transactions = (data ?? []) as Transaction[];
+  const story = computeStory(transactions, start);
+
+  return (
+    <PhoneShell>
+      <div className="min-h-[800px] px-6.5 pt-9 pb-12.5">
+        <StoryHeader dateRange={formatDateRangeId(start, end)} />
+
+        <NarrativeBlock>
+          <span className="font-serif text-[21px] leading-relaxed text-ink">{story.trendText}</span>
+        </NarrativeBlock>
+
+        <SummaryCard masukCents={story.masukCents} keluarCents={story.keluarCents} />
+
+        {story.topCategory && (
+          <NarrativeBlock>
+            Pengeluaran terbesarmu untuk{' '}
+            <strong className="text-ink">{story.topCategory.name}</strong>. Kebanyakan
+            dibayar pakai QRIS di siang hari, sepertinya kamu lagi sibuk kerja.
+          </NarrativeBlock>
+        )}
+
+        {story.topCategory && (
+          <CategoryHighlight name={story.topCategory.name} amount={story.topCategory.cents / 100} />
+        )}
+
+        {story.biggestInboundLine && <NarrativeBlock>{story.biggestInboundLine}</NarrativeBlock>}
+
+        <div className="pt-6 pb-1.5 text-center">
+          <div className="mb-3.5 text-[13px] text-ink-faint">
+            Mau lihat semua transaksinya satu-satu?
+          </div>
+          <Link href={`/transactions?week=${weekId}`}>
+            <Button variant="secondary" className="!px-7 !py-3.5 !text-sm">
+              Lihat daftar transaksi
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </PhoneShell>
+  );
+}
