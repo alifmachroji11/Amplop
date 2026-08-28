@@ -7,6 +7,7 @@ const NAV: { key: NavKey; href: string; label: string }[] = [
   { key: 'upload', href: '/upload', label: 'Unggah' },
   { key: 'story', href: '/story', label: 'Cerita' },
   { key: 'transactions', href: '/transactions', label: 'Transaksi' },
+  { key: 'kalender', href: '/kalender', label: 'Kalender' },
 ];
 
 export function Sidebar({

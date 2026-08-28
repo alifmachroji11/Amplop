@@ -39,6 +39,12 @@ export function currentWeekId(): string {
   return weekIdFor(new Date());
 }
 
+/** Today's calendar date as seen in Asia/Jakarta, at UTC midnight (for date-only comparisons). */
+export function todayJakarta(): Date {
+  const { year, month, day } = jakartaYMD(new Date());
+  return new Date(Date.UTC(year, month, day));
+}
+
 export function weekRange(weekId: string): { start: Date; end: Date } {
   const match = /^(\d{4})-W(\d{2})$/.exec(weekId);
   if (!match) throw new Error(`invalid weekId: ${weekId}`);

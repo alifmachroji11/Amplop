@@ -17,6 +17,11 @@ const MENU = [
     title: 'Semua transaksi',
     desc: 'Cek dan koreksi seluruh transaksi yang sudah terbaca.',
   },
+  {
+    href: '/kalender',
+    title: 'Kalender',
+    desc: 'Tinjau ulang cerita keuangan minggu-minggu sebelumnya.',
+  },
 ];
 
 export function HomeMenu({ name }: { name: string | null }) {
