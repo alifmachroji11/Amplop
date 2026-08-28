@@ -35,9 +35,14 @@ export function HomeMenu({ name }: { name: string | null }) {
       </p>
 
       <div className="flex flex-col gap-3">
-        {MENU.map((item) => (
-          <Link key={item.href} href={item.href} className="block">
-            <Card className="transition-colors hover:border-sage">
+        {MENU.map((item, i) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className="block animate-fade-up"
+            style={{ animationDelay: `${i * 70}ms` }}
+          >
+            <Card className="hover:-translate-y-0.5 hover:border-sage hover:shadow-[0_14px_28px_-16px_rgba(92,107,82,0.45)]">
               <div className="mb-1 text-[16px] font-semibold text-ink">{item.title}</div>
               <div className="text-[13px] leading-relaxed text-ink-soft">{item.desc}</div>
             </Card>
