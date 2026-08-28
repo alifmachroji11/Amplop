@@ -1,12 +1,28 @@
+const JAKARTA_TZ = 'Asia/Jakarta';
+
+/** Reads a date's calendar y/m/d as seen in Asia/Jakarta, regardless of server-process timezone. */
+function jakartaYMD(date: Date): { year: number; month: number; day: number } {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: JAKARTA_TZ,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(date);
+  const get = (type: string) => Number(parts.find((p) => p.type === type)!.value);
+  return { year: get('year'), month: get('month') - 1, day: get('day') };
+}
+
 function startOfIsoWeek(date: Date): Date {
-  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const { year, month, day: dom } = jakartaYMD(date);
+  const d = new Date(Date.UTC(year, month, dom));
   const day = d.getUTCDay() || 7; // Mon=1 .. Sun=7
   if (day !== 1) d.setUTCDate(d.getUTCDate() - (day - 1));
   return d;
 }
 
 function isoWeekNumber(date: Date): { year: number; week: number } {
-  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const { year: y, month, day: dom } = jakartaYMD(date);
+  const d = new Date(Date.UTC(y, month, dom));
   const day = d.getUTCDay() || 7;
   d.setUTCDate(d.getUTCDate() + 4 - day);
   const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));

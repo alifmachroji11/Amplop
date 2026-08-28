@@ -28,7 +28,7 @@ export function UploadFlow() {
 
     const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
     if (!uploadRes.ok) {
-      updateItem(item.id, { status: 'failed' });
+      updateItem(item.id, { status: 'failed', failReason: 'error' });
       return;
     }
     const { uploadId } = await uploadRes.json();
@@ -46,9 +46,9 @@ export function UploadFlow() {
       });
       const body = await parseRes.json();
       const status: ThumbStatus = body.status === 'done' ? 'done' : 'failed';
-      updateItem(itemId, { status });
+      updateItem(itemId, { status, failReason: status === 'failed' ? (body.reason ?? 'error') : undefined });
     } catch {
-      updateItem(itemId, { status: 'failed' });
+      updateItem(itemId, { status: 'failed', failReason: 'error' });
     }
   }
 
@@ -103,6 +103,7 @@ export function UploadFlow() {
           <PartialFailCard
             doneCount={doneCount}
             total={total}
+            allBlurry={items.filter((it) => it.status === 'failed').every((it) => it.failReason === 'blurry')}
             onRetry={retryFailed}
             onSkip={() => router.push('/story')}
           />

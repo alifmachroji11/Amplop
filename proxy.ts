@@ -6,14 +6,23 @@ import { refreshAuthSession } from '@/lib/supabase/middleware';
 const TWO_YEARS = 60 * 60 * 24 * 365 * 2;
 
 export async function proxy(request: NextRequest) {
-  const response = NextResponse.next();
+  const isNewSession = !request.cookies.get(SESSION_COOKIE_NAME);
+  const sessionId = request.cookies.get(SESSION_COOKIE_NAME)?.value ?? crypto.randomUUID();
+  if (isNewSession) {
+    // Set on the request too, not just the response — otherwise code running later in this
+    // same request (e.g. getSessionId() in a page/route reached on someone's very first hit)
+    // still sees no cookie and throws, since request/response cookies are separate stores.
+    request.cookies.set(SESSION_COOKIE_NAME, sessionId);
+  }
+
+  const response = NextResponse.next({ request });
 
   // Refresh + persist Supabase auth cookies on every request (no-op if not logged in).
   const supabase = refreshAuthSession(request, response);
   await supabase.auth.getUser();
 
-  if (!request.cookies.get(SESSION_COOKIE_NAME)) {
-    response.cookies.set(SESSION_COOKIE_NAME, crypto.randomUUID(), {
+  if (isNewSession) {
+    response.cookies.set(SESSION_COOKIE_NAME, sessionId, {
       maxAge: TWO_YEARS,
       path: '/',
       sameSite: 'lax',

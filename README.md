@@ -11,7 +11,7 @@ Nggak perlu catat manual lagi. Amplop baca screenshot bukti transfer/e-wallet (G
 3. **Cerita** — hasilnya disusun jadi ringkasan mingguan (masuk/keluar), bukan tabel angka mentah.
 4. **Koreksi** — kalau kategori atau datanya kurang pas, tinggal ketuk buat ubah.
 
-Nggak ada login/akun — identitas user cuma session cookie anonim (`amplop_sid`, lihat `lib/session.ts`), jadi data terikat ke browser tempat upload dilakukan.
+Login Google wajib buat akses Unggah/Cerita/Transaksi (gerbang di `components/ui/PhoneShell.tsx`, belum login → diarahkan balik ke `/`). Landing punya dua wajah: belum login tampil pitch + tombol "Masuk dengan Google", sudah login langsung disambut Home menu (`components/home/HomeMenu.tsx`) buat milih Unggah/Cerita/Transaksi. Data tersimpan per akun (`user_id`), bukan lagi cuma session cookie — cookie sesi anonim (`amplop_sid`, `lib/session.ts`) masih ada di infra buat nge-link data lama, tapi gak lagi jadi identitas utama dari UI.
 
 ## Stack
 
@@ -24,7 +24,9 @@ Nggak ada login/akun — identitas user cuma session cookie anonim (`amplop_sid`
 
 | Route | Fungsi |
 |---|---|
-| `/` | Landing |
+| `/` | Landing (belum login) / Home menu (sudah login) |
+| `/auth/login` | Login Google |
+| `/auth/callback` | OAuth callback + link data anonim lama ke akun |
 | `/upload` | Unggah screenshot |
 | `/story`, `/story/[weekId]` | Cerita keuangan mingguan |
 | `/transactions` | Daftar transaksi + koreksi kategori |
@@ -49,4 +51,4 @@ API internal: `app/api/upload`, `app/api/parse`, `app/api/transactions/[id]`.
 
 ## Catatan keamanan
 
-Semua akses DB lewat server (`service_role` key), nggak ada client Supabase di browser. RLS aktif di `uploads` dan `transactions` tanpa policy — sengaja deny-all buat `anon`/`authenticated`, karena satu-satunya jalur akses yang sah adalah lewat API route server ini.
+Semua akses DB lewat server (`service_role` key), nggak ada client Supabase di browser. RLS aktif di `uploads` dan `transactions` tanpa policy — sengaja deny-all buat `anon`/`authenticated`, karena satu-satunya jalur akses yang sah adalah lewat API route server ini. API route (`app/api/upload`, `app/api/parse`, `app/api/transactions/[id]`) juga nolak request tanpa login (401) sebagai lapis kedua di depan RLS.

@@ -18,7 +18,9 @@ export function ThumbCell({ item }: { item: ThumbItem }) {
       )}
       {item.status === 'failed' && (
         <div className="absolute inset-0 flex items-center justify-center rounded-card bg-expense-text/[.08]">
-          <span className="text-[11px] text-expense-text">buram</span>
+          <span className="text-[11px] text-expense-text">
+            {item.failReason === 'blurry' ? 'buram' : 'gagal'}
+          </span>
         </div>
       )}
     </div>

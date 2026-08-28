@@ -5,15 +5,20 @@ import type { ParseResult } from './types';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
-const parseResultSchema = z.object({
-  merchant: z.string(),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  amount: z.number().nonnegative(),
-  direction: z.enum(['in', 'out']),
-  category: z.enum(CATEGORIES),
-  confidence: z.number().min(0).max(1),
-  blurry: z.boolean(),
-});
+const parseResultSchema = z
+  .object({
+    merchant: z.string(),
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    amount: z.number().nonnegative(),
+    direction: z.enum(['in', 'out']),
+    category: z.enum(CATEGORIES),
+    confidence: z.number().min(0).max(1),
+    blurry: z.boolean(),
+  })
+  .refine((val) => (val.category === 'Pemasukan') === (val.direction === 'in'), {
+    message: 'category and direction disagree on income vs expense',
+    path: ['category'],
+  });
 
 const PROMPT = `You are reading a screenshot of a bank transfer confirmation, e-wallet notification, or m-banking transaction screen (Indonesian apps like GoPay, OVO, DANA, BCA, QRIS, etc).
 

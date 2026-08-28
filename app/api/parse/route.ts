@@ -26,7 +26,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'upload not found' }, { status: 404 });
   }
 
-  await supabase.from('uploads').update({ status: 'processing' }).eq('id', uploadId);
+  // Compare-and-swap: only proceed if we're the request that flips uploaded/failed -> processing.
+  // Stops a double-click or client retry from racing two concurrent Gemini calls/writes for the
+  // same upload and having one silently clobber the other's result.
+  const { data: claimed } = await supabase
+    .from('uploads')
+    .update({ status: 'processing' })
+    .eq('id', uploadId)
+    .in('status', ['uploaded', 'failed'])
+    .select('id')
+    .maybeSingle();
+
+  if (!claimed) {
+    return NextResponse.json({ status: upload.status === 'done' ? 'done' : 'processing' });
+  }
 
   const { data: fileBlob, error: downloadError } = await supabase.storage
     .from('screenshots')
@@ -37,7 +50,7 @@ export async function POST(request: Request) {
       .from('uploads')
       .update({ status: 'failed', error: 'could not download image' })
       .eq('id', uploadId);
-    return NextResponse.json({ status: 'failed' });
+    return NextResponse.json({ status: 'failed', reason: 'error' });
   }
 
   try {
@@ -50,7 +63,7 @@ export async function POST(request: Request) {
         .from('uploads')
         .update({ status: 'failed', error: 'blurry or low confidence' })
         .eq('id', uploadId);
-      return NextResponse.json({ status: 'failed' });
+      return NextResponse.json({ status: 'failed', reason: 'blurry' });
     }
 
     const amountCents = Math.round(result.amount * 100) * (result.direction === 'out' ? -1 : 1);
@@ -83,6 +96,6 @@ export async function POST(request: Request) {
       .from('uploads')
       .update({ status: 'failed', error: err instanceof Error ? err.message : 'parse failed' })
       .eq('id', uploadId);
-    return NextResponse.json({ status: 'failed' });
+    return NextResponse.json({ status: 'failed', reason: 'error' });
   }
 }

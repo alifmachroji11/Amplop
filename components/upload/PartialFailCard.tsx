@@ -3,11 +3,13 @@ import { Button } from '@/components/ui/Button';
 export function PartialFailCard({
   doneCount,
   total,
+  allBlurry,
   onRetry,
   onSkip,
 }: {
   doneCount: number;
   total: number;
+  allBlurry: boolean;
   onRetry: () => void;
   onSkip: () => void;
 }) {
@@ -19,9 +21,9 @@ export function PartialFailCard({
           {doneCount} dari {total} berhasil dibaca
         </div>
         <div className="text-sm leading-relaxed text-ink-soft">
-          {failedCount} gambar terlalu buram sehingga belum bisa kami baca. Tidak
-          masalah — kamu bisa unggah ulang yang buram, atau lewati saja dan
-          lanjut lihat ceritamu.
+          {allBlurry
+            ? `${failedCount} gambar terlalu buram sehingga belum bisa kami baca. Tidak masalah — kamu bisa unggah ulang yang buram, atau lewati saja dan lanjut lihat ceritamu.`
+            : `${failedCount} gambar belum bisa kami baca (bukan karena buram — bisa jadi gangguan sesaat). Coba unggah ulang, atau lewati saja dan lanjut lihat ceritamu.`}
         </div>
       </div>
       <div className="flex gap-2.5">
