@@ -5,10 +5,11 @@ import { StoryHeader } from '@/components/story/StoryHeader';
 import { SummaryCard } from '@/components/story/SummaryCard';
 import { CategoryHighlight } from '@/components/story/CategoryHighlight';
 import { NarrativeBlock } from '@/components/story/NarrativeBlock';
+import { ShareStoryPdfButton } from '@/components/story/ShareStoryPdfButton';
 import { getAuthContext, withOwner } from '@/lib/authContext';
 import { supabaseServer } from '@/lib/supabase/server';
 import { weekRange } from '@/lib/weeks';
-import { formatDateRangeId } from '@/lib/format';
+import { formatDateRangeId, formatDateRangeFullId } from '@/lib/format';
 import { computeStory } from '@/lib/storyAggregate';
 import type { Transaction } from '@/lib/types';
 
@@ -59,6 +60,16 @@ export default async function StoryPage(props: PageProps<'/story/[weekId]'>) {
               Lihat daftar transaksi
             </Button>
           </Link>
+        </div>
+
+        <div className="pt-3 pb-1.5 text-center">
+          <ShareStoryPdfButton
+            weekId={weekId}
+            dateRangeLabel={formatDateRangeFullId(start, end)}
+            transactions={transactions}
+            masukCents={story.masukCents}
+            keluarCents={story.keluarCents}
+          />
         </div>
       </div>
     </PhoneShell>

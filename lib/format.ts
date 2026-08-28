@@ -35,3 +35,17 @@ export function formatDateRangeId(start: Date, end: Date): string {
     : `${start.getDate()} ${MONTH_NAMES[start.getMonth()]}`;
   return `${startStr}–${end.getDate()} ${MONTH_NAMES[end.getMonth()]}`;
 }
+
+const FULL_MONTH_NAMES = [
+  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+];
+
+/** Same as formatDateRangeId but spelled out in full, with year — for shareable documents (PDF). */
+export function formatDateRangeFullId(start: Date, end: Date): string {
+  const sameMonth = start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear();
+  const startStr = sameMonth
+    ? `${start.getDate()}`
+    : `${start.getDate()} ${FULL_MONTH_NAMES[start.getMonth()]}`;
+  return `${startStr}–${end.getDate()} ${FULL_MONTH_NAMES[end.getMonth()]} ${end.getFullYear()}`;
+}
