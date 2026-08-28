@@ -14,13 +14,8 @@ const MENU = [
   },
   {
     href: '/story',
-    title: 'Cerita minggu ini',
-    desc: 'Lihat ringkasan keuanganmu minggu ini.',
-  },
-  {
-    href: '/transactions',
-    title: 'Semua transaksi',
-    desc: 'Cek dan koreksi seluruh transaksi yang sudah terbaca.',
+    title: 'Cerita & transaksi',
+    desc: 'Lihat ringkasan minggu ini, atau cek dan koreksi seluruh transaksi.',
   },
   {
     href: '/kalender',

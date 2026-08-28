@@ -29,9 +29,10 @@ Login Google wajib buat akses Unggah/Cerita/Transaksi (gerbang di `components/ui
 | `/auth/callback` | OAuth callback + link data anonim lama ke akun |
 | `/upload` | Unggah screenshot |
 | `/pemasukan` | Catat pemasukan manual (sumber + alokasi Piramida/3 Stage) |
-| `/story`, `/story/[weekId]` | Cerita keuangan mingguan, bisa dibagikan sebagai PDF |
-| `/transactions` | Daftar transaksi + koreksi kategori |
+| `/story`, `/story/[weekId]` | Cerita minggu ini + daftar transaksi dalam dua tab, bisa dibagikan sebagai PDF |
 | `/kalender` | Navigasi ke cerita minggu mana pun lewat kalender bulanan |
+
+Logo "Jejak" di sidebar (desktop) dan top bar (mobile) selalu mengarah balik ke Beranda.
 
 API internal: `app/api/upload`, `app/api/parse`, `app/api/transactions/[id]`, `app/api/income`.
 

@@ -7,7 +7,6 @@ const NAV: { key: NavKey; href: string; label: string }[] = [
   { key: 'upload', href: '/upload', label: 'Unggah' },
   { key: 'pemasukan', href: '/pemasukan', label: 'Pemasukan' },
   { key: 'story', href: '/story', label: 'Cerita' },
-  { key: 'transactions', href: '/transactions', label: 'Transaksi' },
   { key: 'kalender', href: '/kalender', label: 'Kalender' },
 ];
 
@@ -25,9 +24,9 @@ export function Sidebar({
   return (
     <aside className="sticky top-16 hidden w-[248px] flex-shrink-0 flex-col justify-between self-start py-1 lg:flex" style={{ minHeight: '520px' }}>
       <div>
-        <div className="mb-10 pl-3 font-serif text-[15px] tracking-[0.08em] text-sage uppercase">
+        <Link href="/" className="mb-10 block pl-3 font-serif text-[15px] tracking-[0.08em] text-sage uppercase">
           Jejak
-        </div>
+        </Link>
         <nav className="flex flex-col gap-0.5">
           {NAV.map((item) => {
             const isActive = item.key === active;

@@ -1,1 +1,1 @@
-export type NavKey = 'home' | 'upload' | 'story' | 'transactions' | 'kalender' | 'pemasukan';
+export type NavKey = 'home' | 'upload' | 'story' | 'kalender' | 'pemasukan';
