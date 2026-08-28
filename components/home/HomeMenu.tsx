@@ -8,6 +8,11 @@ const MENU = [
     desc: 'Tambah bukti transfer atau notifikasi pembayaran baru.',
   },
   {
+    href: '/pemasukan',
+    title: 'Catat pemasukan',
+    desc: 'Catat sumber pemasukan dan alokasikan ke kebutuhanmu.',
+  },
+  {
     href: '/story',
     title: 'Cerita minggu ini',
     desc: 'Lihat ringkasan keuanganmu minggu ini.',

@@ -1,4 +1,5 @@
 import type { Category } from './categories';
+import type { IncomeAllocation } from './incomeAllocation';
 
 export type UploadStatus = 'uploaded' | 'processing' | 'done' | 'failed';
 
@@ -23,6 +24,7 @@ export type Transaction = {
   category: Category;
   confidence: number | null;
   is_blurry: boolean;
+  income_allocation: IncomeAllocation | null;
   created_at: string;
   updated_at: string;
 };

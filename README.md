@@ -28,10 +28,12 @@ Login Google wajib buat akses Unggah/Cerita/Transaksi (gerbang di `components/ui
 | `/auth/login` | Login Google |
 | `/auth/callback` | OAuth callback + link data anonim lama ke akun |
 | `/upload` | Unggah screenshot |
-| `/story`, `/story/[weekId]` | Cerita keuangan mingguan |
+| `/pemasukan` | Catat pemasukan manual (sumber + alokasi Piramida/3 Stage) |
+| `/story`, `/story/[weekId]` | Cerita keuangan mingguan, bisa dibagikan sebagai PDF |
 | `/transactions` | Daftar transaksi + koreksi kategori |
+| `/kalender` | Navigasi ke cerita minggu mana pun lewat kalender bulanan |
 
-API internal: `app/api/upload`, `app/api/parse`, `app/api/transactions/[id]`.
+API internal: `app/api/upload`, `app/api/parse`, `app/api/transactions/[id]`, `app/api/income`.
 
 ## Setup lokal
 
@@ -39,7 +41,7 @@ API internal: `app/api/upload`, `app/api/parse`, `app/api/transactions/[id]`.
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `SUPABASE_SERVICE_ROLE_KEY` — dipakai server-only (`lib/supabase/server.ts`), jangan pernah diekspos ke browser
    - `GEMINI_API_KEY`
-2. Jalankan migration `supabase/migrations/0001_init.sql` ke project Supabase kamu.
+2. Jalankan semua migration di `supabase/migrations/` (berurutan) ke project Supabase kamu.
 3. Install dependency dan jalankan dev server:
 
    ```bash
