@@ -43,9 +43,17 @@ const FULL_MONTH_NAMES = [
 
 /** Same as formatDateRangeId but spelled out in full, with year — for shareable documents (PDF). */
 export function formatDateRangeFullId(start: Date, end: Date): string {
-  const sameMonth = start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear();
-  const startStr = sameMonth
-    ? `${start.getDate()}`
-    : `${start.getDate()} ${FULL_MONTH_NAMES[start.getMonth()]}`;
+  const sameYear = start.getFullYear() === end.getFullYear();
+  const sameMonth = sameYear && start.getMonth() === end.getMonth();
+  let startStr: string;
+  if (sameMonth) {
+    startStr = `${start.getDate()}`;
+  } else if (sameYear) {
+    startStr = `${start.getDate()} ${FULL_MONTH_NAMES[start.getMonth()]}`;
+  } else {
+    // Week spans a year boundary (e.g. ISO week 1) — spell out the start year too, otherwise
+    // "29 Desember–4 Januari 2026" reads as if both dates were 2026.
+    startStr = `${start.getDate()} ${FULL_MONTH_NAMES[start.getMonth()]} ${start.getFullYear()}`;
+  }
   return `${startStr}–${end.getDate()} ${FULL_MONTH_NAMES[end.getMonth()]} ${end.getFullYear()}`;
 }

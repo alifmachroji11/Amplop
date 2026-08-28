@@ -1,11 +1,12 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { weekIdFor, todayJakarta } from '@/lib/weeks';
 import { MONTH_NAMES } from '@/lib/format';
 
 const DAY_HEADERS = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+const REFRESH_TODAY_MS = 60_000;
 
 function daysInMonth(year: number, month: number): number {
   return new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
@@ -18,9 +19,15 @@ function mondayIndex(year: number, month: number, day: number): number {
 
 export function MonthCalendar() {
   const router = useRouter();
-  const today = useMemo(() => todayJakarta(), []);
+  const [today, setToday] = useState(() => todayJakarta());
   const [viewYear, setViewYear] = useState(today.getUTCFullYear());
   const [viewMonth, setViewMonth] = useState(today.getUTCMonth());
+
+  useEffect(() => {
+    // Keeps the "today" highlight correct if this page is left open across midnight.
+    const id = setInterval(() => setToday(todayJakarta()), REFRESH_TODAY_MS);
+    return () => clearInterval(id);
+  }, []);
 
   function goToMonth(delta: number) {
     let month = viewMonth + delta;

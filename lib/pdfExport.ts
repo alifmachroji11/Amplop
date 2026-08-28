@@ -101,6 +101,7 @@ export function buildStoryPdf({ dateRangeLabel, transactions, masukCents, keluar
     doc.setTextColor(120);
     doc.text('Belum ada transaksi tercatat pada periode ini.', marginX, y + 14);
     doc.setTextColor(0);
+    drawFooter(doc, marginX, 1);
     return doc;
   }
 
@@ -123,19 +124,21 @@ export function buildStoryPdf({ dateRangeLabel, transactions, masukCents, keluar
         data.cell.styles.textColor = raw < 0 ? RUPIAH_RED : RUPIAH_GREEN;
       }
     },
-    didDrawPage: (data) => {
-      doc.setFontSize(8);
-      doc.setTextColor(140);
-      doc.text(
-        `Dibuat otomatis oleh Amplop — halaman ${data.pageNumber}`,
-        marginX,
-        doc.internal.pageSize.getHeight() - 20
-      );
-      doc.setTextColor(0);
-    },
+    didDrawPage: (data) => drawFooter(doc, marginX, data.pageNumber),
   });
 
   return doc;
+}
+
+function drawFooter(doc: jsPDF, marginX: number, pageNumber: number) {
+  doc.setFontSize(8);
+  doc.setTextColor(140);
+  doc.text(
+    `Dibuat otomatis oleh Amplop — halaman ${pageNumber}`,
+    marginX,
+    doc.internal.pageSize.getHeight() - 20
+  );
+  doc.setTextColor(0);
 }
 
 export async function shareOrDownloadPdf(doc: jsPDF, filename: string, shareText: string): Promise<void> {
@@ -151,5 +154,21 @@ export async function shareOrDownloadPdf(doc: jsPDF, filename: string, shareText
     }
   }
 
-  doc.save(filename);
+  downloadBlob(blob, filename);
+}
+
+/**
+ * jsPDF's own doc.save() builds its download <a> without attaching it to the DOM before
+ * dispatching the click — some Chrome versions silently drop the download in that case.
+ * Attaching-then-removing the anchor ourselves is the standard reliable workaround.
+ */
+function downloadBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 30_000);
 }
