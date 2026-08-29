@@ -118,11 +118,11 @@ function FrameUpload({ active }: { active: boolean }) {
       </div>
       <div className="grid grid-cols-3 gap-2.5">
         {[0, 1, 2].map((i) => (
-          <div
-            key={i}
-            className="aspect-square animate-pulse rounded-card bg-sage-tint-2"
-            style={{ animationDelay: `${i * 180}ms` }}
-          />
+          <div key={i} className="relative aspect-square rounded-card bg-sage-tint-2">
+            <div className="absolute right-1.5 bottom-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-sage">
+              <div className="h-[6px] w-[3px] -translate-y-px rotate-45 border-r-2 border-b-2 border-white" />
+            </div>
+          </div>
         ))}
       </div>
       <div className="text-sm text-ink-soft">Tinggal ketuk unggah, sisanya kami yang urus.</div>
@@ -137,9 +137,21 @@ function FrameParse({ active }: { active: boolean }) {
         <div className="mb-1 text-[11px] tracking-wide text-ink-faint uppercase">Membaca…</div>
         <div className="font-serif text-lg text-ink">GoPay · Transfer</div>
       </div>
-      <div className="relative h-20 overflow-hidden rounded-card bg-sage-tint-2">
+      <div className="relative h-20 overflow-hidden rounded-card bg-surface-muted ring-1 ring-border">
+        <div className="flex h-full flex-col items-center justify-center gap-1.5">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-income-bg">
+            <div className="h-2.5 w-1.5 -translate-y-px rotate-45 border-r-2 border-b-2 border-income-text" />
+          </div>
+          <div className="text-[11px] font-medium text-ink-soft">Transfer Berhasil</div>
+        </div>
+        {/* Remounted (via the `active` key) each time this frame comes back into view, so the
+            scan sweep replays as a short, finite pass rather than looping forever — it should
+            read as "done reading," not as a stuck loading state. */}
         {active && (
-          <div className="absolute inset-x-0 top-0 h-8 animate-[scan-sweep_1.8s_ease-in-out_infinite] bg-gradient-to-b from-transparent via-sage/50 to-transparent" />
+          <div
+            key="scan"
+            className="absolute inset-x-0 top-0 h-8 animate-[scan-sweep_1.3s_ease-in-out_2_forwards] bg-gradient-to-b from-transparent via-sage/50 to-transparent"
+          />
         )}
       </div>
       <div className="flex flex-wrap gap-1.5">
