@@ -78,29 +78,64 @@ export function HeroInteractive() {
   );
 }
 
+/**
+ * A printed receipt, not an app-screen mockup — "Amplop" is an envelope you keep receipts in,
+ * so the demo visual is one, complete with a dashed tear line and a barcode. It also sidesteps
+ * the earlier problem entirely: a still, printed slip has no "is this loading?" reading to begin
+ * with, since nothing here is pretending to be a live, animating interface.
+ */
 function DemoCard({ frame }: { frame: number }) {
   return (
-    <div className="relative mx-auto w-full max-w-[340px] lg:mx-0 lg:w-[400px] lg:flex-shrink-0">
+    <div className="relative mx-auto w-full max-w-[300px] lg:mx-0 lg:w-[300px] lg:flex-shrink-0">
       <div
         aria-hidden
         className="absolute -top-10 -right-10 h-56 w-56 rounded-full bg-sage-tint blur-3xl"
       />
       <div className="group relative">
-        <div className="absolute top-6 -right-4 h-[300px] w-full rotate-3 rounded-phone bg-sage-tint-2 shadow-phone transition-transform duration-500 ease-out group-hover:rotate-1" />
-        <div className="relative h-[300px] -rotate-2 overflow-hidden rounded-phone bg-surface shadow-phone transition-transform duration-500 ease-out group-hover:-translate-y-1 group-hover:rotate-0">
-          <FrameUpload active={frame === 0} />
-          <FrameParse active={frame === 1} />
-          <FrameStory active={frame === 2} />
+        <div className="absolute top-4 -right-3 h-full w-full rotate-2 rounded-card bg-sage-tint-2 shadow-phone transition-transform duration-500 ease-out group-hover:rotate-1" />
+        <div className="relative -rotate-1 rounded-card bg-surface px-6 pt-7 pb-6 font-mono shadow-phone transition-transform duration-500 ease-out group-hover:-translate-y-1 group-hover:rotate-0">
+          <div className="text-center font-serif text-[13px] tracking-[0.15em] text-sage-ink uppercase">
+            Amplop
+          </div>
+          <div className="mb-4 text-center text-[10px] tracking-[0.1em] text-ink-faint">
+            jejak transaksi
+          </div>
+          <div className="border-t border-dashed border-border" />
+
+          <div className="relative min-h-[168px] py-4">
+            <ReceiptShell active={frame === 0}>
+              <ReceiptUpload />
+            </ReceiptShell>
+            <ReceiptShell active={frame === 1}>
+              <ReceiptRead />
+            </ReceiptShell>
+            <ReceiptShell active={frame === 2}>
+              <ReceiptStory />
+            </ReceiptShell>
+          </div>
+
+          <div className="border-t border-dashed border-border" />
+          <div
+            aria-hidden
+            className="mt-4 h-5"
+            style={{
+              backgroundImage:
+                'repeating-linear-gradient(90deg, var(--color-ink) 0px, var(--color-ink) 2px, transparent 2px, transparent 5px)',
+            }}
+          />
+          <div className="mt-1.5 text-center text-[9px] tracking-[0.2em] text-ink-faint">
+            NO. 0472 8831
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-function FrameShell({ active, children }: { active: boolean; children: React.ReactNode }) {
+function ReceiptShell({ active, children }: { active: boolean; children: React.ReactNode }) {
   return (
     <div
-      className={`absolute inset-6 flex flex-col justify-between transition-all duration-500 ${
+      className={`absolute inset-0 transition-all duration-500 ${
         active ? 'opacity-100' : 'pointer-events-none opacity-0'
       }`}
     >
@@ -109,82 +144,53 @@ function FrameShell({ active, children }: { active: boolean; children: React.Rea
   );
 }
 
-function FrameUpload({ active }: { active: boolean }) {
+function ReceiptUpload() {
   return (
-    <FrameShell active={active}>
-      <div>
-        <div className="mb-1 text-[11px] tracking-wide text-ink-faint uppercase">Galeri kamu</div>
-        <div className="font-serif text-lg text-ink">3 screenshot dipilih</div>
-      </div>
-      <div className="grid grid-cols-3 gap-2.5">
-        {[0, 1, 2].map((i) => (
-          <div key={i} className="relative aspect-square rounded-card bg-sage-tint-2">
-            <div className="absolute right-1.5 bottom-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-sage">
-              <div className="h-[6px] w-[3px] -translate-y-px rotate-45 border-r-2 border-b-2 border-white" />
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="text-sm text-ink-soft">Tinggal ketuk unggah, sisanya kami yang urus.</div>
-    </FrameShell>
+    <div>
+      <div className="mb-2 text-[10px] tracking-wide text-ink-faint uppercase">Foto diterima · 3</div>
+      {['IMG_0231.jpg', 'IMG_0244.jpg', 'IMG_0198.jpg'].map((name) => (
+        <div key={name} className="flex items-center justify-between py-1 text-[12px]">
+          <span className="text-ink-soft">{name}</span>
+          <span className="text-sage-ink">OK</span>
+        </div>
+      ))}
+      <div className="mt-3 text-[11px] text-ink-faint">Siap diproses.</div>
+    </div>
   );
 }
 
-function FrameParse({ active }: { active: boolean }) {
+function ReceiptRead() {
   return (
-    <FrameShell active={active}>
-      <div>
-        <div className="mb-1 text-[11px] tracking-wide text-ink-faint uppercase">Membaca…</div>
-        <div className="font-serif text-lg text-ink">GoPay · Transfer</div>
+    <div>
+      <div className="mb-2 text-[10px] tracking-wide text-ink-faint uppercase">Terbaca otomatis</div>
+      <div className="text-[14px] font-semibold text-ink">GoPay · Transfer</div>
+      <div className="mt-1.5 flex items-center justify-between text-[13px]">
+        <span className="text-ink-soft">Warung Bu Siti</span>
+        <span className="font-medium text-ink">Rp75.000</span>
       </div>
-      <div className="relative h-20 overflow-hidden rounded-card bg-surface-muted ring-1 ring-border">
-        <div className="flex h-full flex-col items-center justify-center gap-1.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-income-bg">
-            <div className="h-2.5 w-1.5 -translate-y-px rotate-45 border-r-2 border-b-2 border-income-text" />
-          </div>
-          <div className="text-[11px] font-medium text-ink-soft">Transfer Berhasil</div>
-        </div>
-        {/* Remounted (via the `active` key) each time this frame comes back into view, so the
-            scan sweep replays as a short, finite pass rather than looping forever — it should
-            read as "done reading," not as a stuck loading state. */}
-        {active && (
-          <div
-            key="scan"
-            className="absolute inset-x-0 top-0 h-8 animate-[scan-sweep_1.3s_ease-in-out_2_forwards] bg-gradient-to-b from-transparent via-sage/50 to-transparent"
-          />
-        )}
-      </div>
-      <div className="flex flex-wrap gap-1.5">
-        {['Rp75.000', 'Warung Bu Siti', 'Makan & jajan'].map((chip) => (
-          <span key={chip} className="rounded-pill bg-surface-muted px-2.5 py-1 text-[11px] text-ink-soft">
-            {chip}
-          </span>
-        ))}
-      </div>
-    </FrameShell>
+      <div className="mt-1 text-[11px] text-ink-faint">Kategori: Makan & jajan</div>
+    </div>
   );
 }
 
-function FrameStory({ active }: { active: boolean }) {
+function ReceiptStory() {
   return (
-    <FrameShell active={active}>
-      <div>
-        <div className="mb-1 text-[11px] tracking-wide text-ink-faint uppercase">Cerita minggu ini</div>
-        <div className="font-serif text-lg text-ink">24–30 Agu</div>
+    <div>
+      <div className="mb-2 text-[10px] tracking-wide text-ink-faint uppercase">
+        Cerita minggu ini · 24–30 Agu
       </div>
-      <p className="font-serif text-[15px] leading-relaxed text-ink">
-        Pengeluaranmu paling banyak di awal minggu, lalu mulai menurun.
-      </p>
-      <div className="flex gap-2.5">
-        <div className="flex-1 rounded-card bg-income-bg px-3 py-3">
-          <div className="text-[10px] text-income-text">Masuk</div>
-          <div className="font-serif text-base text-income-text">Rp1.200.000</div>
-        </div>
-        <div className="flex-1 rounded-card bg-expense-bg px-3 py-3">
-          <div className="text-[10px] text-expense-text">Keluar</div>
-          <div className="font-serif text-base text-expense-text">Rp450.000</div>
-        </div>
+      <div className="flex items-center justify-between py-1 text-[13px]">
+        <span className="text-ink-soft">Masuk</span>
+        <span className="font-medium text-income-text">Rp1.200.000</span>
       </div>
-    </FrameShell>
+      <div className="flex items-center justify-between py-1 text-[13px]">
+        <span className="text-ink-soft">Keluar</span>
+        <span className="font-medium text-expense-text">Rp450.000</span>
+      </div>
+      <div className="mt-2 flex items-center justify-between border-t border-dashed border-border pt-2 text-[13px] font-semibold">
+        <span className="text-ink">Sisa</span>
+        <span className="text-ink">Rp750.000</span>
+      </div>
+    </div>
   );
 }
