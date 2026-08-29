@@ -20,11 +20,12 @@ export function UploadFlow() {
     setItems((prev) => prev.map((it) => (it.id === id ? { ...it, ...patch } : it)));
   }
 
-  async function processFromUpload(item: ThumbItem) {
+  async function processFromUpload(item: ThumbItem, replacesUploadId?: string) {
     updateItem(item.id, { status: 'uploading' });
 
     const formData = new FormData();
     formData.append('file', item.file);
+    if (replacesUploadId) formData.append('replacesUploadId', replacesUploadId);
 
     const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
     if (!uploadRes.ok) {
@@ -60,7 +61,7 @@ export function UploadFlow() {
       status: 'queued',
     }));
     setItems((prev) => [...prev, ...newItems]);
-    runPool(newItems, CONCURRENCY, processFromUpload);
+    runPool(newItems, CONCURRENCY, (item) => processFromUpload(item));
   }
 
   function retryFailed() {
@@ -75,9 +76,12 @@ export function UploadFlow() {
   }
 
   function replaceItem(id: string, file: File) {
+    // Carry the old uploadId through so the server can delete that rejected photo's storage
+    // object + row once the replacement succeeds, instead of leaving it orphaned forever.
+    const oldUploadId = items.find((it) => it.id === id)?.uploadId;
     const replacement: ThumbItem = { id, file, previewUrl: URL.createObjectURL(file), status: 'queued' };
     setItems((prev) => prev.map((it) => (it.id === id ? replacement : it)));
-    processFromUpload(replacement);
+    processFromUpload(replacement, oldUploadId);
   }
 
   const total = items.length;

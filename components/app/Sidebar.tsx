@@ -79,6 +79,9 @@ export function Sidebar({
             </a>
           )}
         </div>
+        <Link href="/privasi" className="mt-3 block pl-3 text-[12px] text-ink-faint underline">
+          Kebijakan Privasi
+        </Link>
       </div>
     </aside>
   );

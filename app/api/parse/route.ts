@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { getAuthContext, withOwner } from '@/lib/authContext';
 import { supabaseServer } from '@/lib/supabase/server';
 import { parseScreenshot } from '@/lib/gemini';
+import { checkRateLimit } from '@/lib/rateLimit';
+
+const RATE_LIMIT = { limit: 60, windowMs: 10 * 60 * 1000 }; // 60 parse calls / 10 min per user (a bit above upload's limit to leave room for retries)
 
 export async function POST(request: Request) {
   const ctx = await getAuthContext();
@@ -16,6 +19,11 @@ export async function POST(request: Request) {
   }
 
   const supabase = supabaseServer();
+
+  const allowed = await checkRateLimit(supabase, ctx.userId, 'parse', RATE_LIMIT);
+  if (!allowed) {
+    return NextResponse.json({ error: 'too many requests, try again later' }, { status: 429 });
+  }
 
   const { data: upload, error: uploadError } = await withOwner(
     supabase.from('uploads').select('*').eq('id', uploadId),

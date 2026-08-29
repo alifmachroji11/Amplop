@@ -5,6 +5,31 @@ import { refreshAuthSession } from '@/lib/supabase/middleware';
 
 const TWO_YEARS = 60 * 60 * 24 * 365 * 2;
 
+function buildCsp(nonce: string): string {
+  const isDev = process.env.NODE_ENV === 'development';
+  const supabaseOrigin = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+
+  // style-src stays 'unsafe-inline' rather than nonce'd: a few components use inline `style={{}}`
+  // attributes (small CSS animations), and CSP has no nonce mechanism for the style *attribute*
+  // (only for <style>/<link> tags). script-src is the directive that actually matters for
+  // blocking injected/XSS script execution, so that one stays strict.
+  return `
+    default-src 'self';
+    script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ''};
+    style-src 'self' 'unsafe-inline';
+    img-src 'self' blob: data:;
+    font-src 'self';
+    connect-src 'self' ${supabaseOrigin};
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+    frame-ancestors 'none';
+    upgrade-insecure-requests;
+  `
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
 export async function proxy(request: NextRequest) {
   const existingSessionId = request.cookies.get(SESSION_COOKIE_NAME)?.value;
 
@@ -25,7 +50,15 @@ export async function proxy(request: NextRequest) {
     request.cookies.set(SESSION_COOKIE_NAME, sessionId);
   }
 
-  const response = NextResponse.next({ request });
+  const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
+  const csp = buildCsp(nonce);
+
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-nonce', nonce);
+  requestHeaders.set('Content-Security-Policy', csp);
+
+  const response = NextResponse.next({ request: { headers: requestHeaders } });
+  response.headers.set('Content-Security-Policy', csp);
 
   // Refresh + persist Supabase auth cookies on every request (no-op if not logged in).
   const supabase = refreshAuthSession(request, response);

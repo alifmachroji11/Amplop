@@ -49,6 +49,10 @@ export function HomeMenu({ name }: { name: string | null }) {
           </Link>
         ))}
       </div>
+
+      <Link href="/privasi" className="mt-6 inline-block text-[12px] text-ink-faint underline lg:hidden">
+        Kebijakan Privasi
+      </Link>
     </div>
   );
 }

@@ -57,6 +57,12 @@ export default async function LandingPage() {
       </div>
 
       <WhyAmplop />
+
+      <div className="mx-auto max-w-[1100px] px-5 pb-10 text-center sm:px-8 lg:px-16">
+        <Link href="/privasi" className="text-[13px] text-ink-faint underline">
+          Kebijakan Privasi
+        </Link>
+      </div>
     </div>
   );
 }

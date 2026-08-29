@@ -23,10 +23,23 @@ export function TransactionsList({ initial }: { initial: Transaction[] }) {
     if (!res.ok) setTransactions(previous);
   }
 
+  async function handleDelete(id: string) {
+    const previous = transactions;
+    setTransactions((prev) => prev.filter((tx) => tx.id !== id));
+
+    const res = await fetch(`/api/transactions/${id}`, { method: 'DELETE' });
+    if (!res.ok) setTransactions(previous);
+  }
+
   return (
     <div className="flex flex-col gap-2.5 lg:grid lg:grid-cols-2 lg:gap-3">
       {transactions.map((tx) => (
-        <TransactionRow key={tx.id} transaction={tx} onCategoryChange={handleCategoryChange} />
+        <TransactionRow
+          key={tx.id}
+          transaction={tx}
+          onCategoryChange={handleCategoryChange}
+          onDelete={handleDelete}
+        />
       ))}
     </div>
   );
