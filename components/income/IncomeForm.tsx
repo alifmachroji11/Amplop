@@ -13,7 +13,14 @@ import {
 } from '@/lib/incomeAllocation';
 
 function suggestedBuckets(method: AllocationMethod, amount: number) {
-  return METHOD_BUCKETS[method].map((b) => ({ name: b.name, amount: Math.round(amount * b.share) }));
+  const defs = METHOD_BUCKETS[method];
+  let allocated = 0;
+  return defs.map((b, i) => {
+    // Last bucket absorbs the rounding remainder so the buckets always sum to `amount` exactly.
+    const bucketAmount = i === defs.length - 1 ? amount - allocated : Math.round(amount * b.share);
+    allocated += bucketAmount;
+    return { name: b.name, amount: bucketAmount };
+  });
 }
 
 export function IncomeForm() {

@@ -28,5 +28,5 @@ export const METHOD_BUCKETS: Record<AllocationMethod, { name: string; share: num
 
 export const METHOD_LABELS: Record<AllocationMethod, string> = {
   piramida: 'Piramida keuangan (4 lapis)',
-  '3stage': '3 Stage — Living / Saving / Playing (50/30/20)',
+  '3stage': '3 Stage — Living / Saving / Playing (50/20/30)',
 };
