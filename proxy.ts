@@ -6,9 +6,19 @@ import { refreshAuthSession } from '@/lib/supabase/middleware';
 const TWO_YEARS = 60 * 60 * 24 * 365 * 2;
 
 export async function proxy(request: NextRequest) {
-  const isNewSession = !request.cookies.get(SESSION_COOKIE_NAME);
-  const sessionId = request.cookies.get(SESSION_COOKIE_NAME)?.value ?? crypto.randomUUID();
-  if (isNewSession) {
+  const existingSessionId = request.cookies.get(SESSION_COOKIE_NAME)?.value;
+
+  // A brand-new session id is only minted for a top-level document navigation, never for a
+  // sub-resource request (fetch/XHR/prefetch) that happens to race that navigation before the
+  // browser has applied its Set-Cookie. Modern browsers always send `Sec-Fetch-Dest` on
+  // fetch/XHR (as a non-"document" value); clients that omit the header entirely (curl, older
+  // browsers) fall back to the old "mint if missing" behavior so they still work.
+  const fetchDest = request.headers.get('sec-fetch-dest');
+  const isSubResourceRequest = fetchDest !== null && fetchDest !== 'document';
+  const isNewSession = !existingSessionId && !isSubResourceRequest;
+  const sessionId = existingSessionId ?? (isNewSession ? crypto.randomUUID() : undefined);
+
+  if (isNewSession && sessionId) {
     // Set on the request too, not just the response — otherwise code running later in this
     // same request (e.g. getSessionId() in a page/route reached on someone's very first hit)
     // still sees no cookie and throws, since request/response cookies are separate stores.
@@ -21,7 +31,7 @@ export async function proxy(request: NextRequest) {
   const supabase = refreshAuthSession(request, response);
   await supabase.auth.getUser();
 
-  if (isNewSession) {
+  if (isNewSession && sessionId) {
     response.cookies.set(SESSION_COOKIE_NAME, sessionId, {
       maxAge: TWO_YEARS,
       path: '/',

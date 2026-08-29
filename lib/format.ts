@@ -28,12 +28,15 @@ export function formatDateId(isoDate: string): string {
   return `${DAY_NAMES[d.getDay()]}, ${d.getDate()} ${MONTH_NAMES[d.getMonth()]}`;
 }
 
+// start/end come from lib/weeks.ts's weekRange(), which represents Asia/Jakarta calendar
+// dates as UTC-midnight Date objects — read them with UTC accessors, not local ones, or
+// this drifts a day depending on the server/browser's own timezone.
 export function formatDateRangeId(start: Date, end: Date): string {
-  const sameMonth = start.getMonth() === end.getMonth();
+  const sameMonth = start.getUTCMonth() === end.getUTCMonth();
   const startStr = sameMonth
-    ? `${start.getDate()}`
-    : `${start.getDate()} ${MONTH_NAMES[start.getMonth()]}`;
-  return `${startStr}–${end.getDate()} ${MONTH_NAMES[end.getMonth()]}`;
+    ? `${start.getUTCDate()}`
+    : `${start.getUTCDate()} ${MONTH_NAMES[start.getUTCMonth()]}`;
+  return `${startStr}–${end.getUTCDate()} ${MONTH_NAMES[end.getUTCMonth()]}`;
 }
 
 const FULL_MONTH_NAMES = [
@@ -43,17 +46,17 @@ const FULL_MONTH_NAMES = [
 
 /** Same as formatDateRangeId but spelled out in full, with year — for shareable documents (PDF). */
 export function formatDateRangeFullId(start: Date, end: Date): string {
-  const sameYear = start.getFullYear() === end.getFullYear();
-  const sameMonth = sameYear && start.getMonth() === end.getMonth();
+  const sameYear = start.getUTCFullYear() === end.getUTCFullYear();
+  const sameMonth = sameYear && start.getUTCMonth() === end.getUTCMonth();
   let startStr: string;
   if (sameMonth) {
-    startStr = `${start.getDate()}`;
+    startStr = `${start.getUTCDate()}`;
   } else if (sameYear) {
-    startStr = `${start.getDate()} ${FULL_MONTH_NAMES[start.getMonth()]}`;
+    startStr = `${start.getUTCDate()} ${FULL_MONTH_NAMES[start.getUTCMonth()]}`;
   } else {
     // Week spans a year boundary (e.g. ISO week 1) — spell out the start year too, otherwise
     // "29 Desember–4 Januari 2026" reads as if both dates were 2026.
-    startStr = `${start.getDate()} ${FULL_MONTH_NAMES[start.getMonth()]} ${start.getFullYear()}`;
+    startStr = `${start.getUTCDate()} ${FULL_MONTH_NAMES[start.getUTCMonth()]} ${start.getUTCFullYear()}`;
   }
-  return `${startStr}–${end.getDate()} ${FULL_MONTH_NAMES[end.getMonth()]} ${end.getFullYear()}`;
+  return `${startStr}–${end.getUTCDate()} ${FULL_MONTH_NAMES[end.getUTCMonth()]} ${end.getUTCFullYear()}`;
 }

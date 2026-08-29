@@ -18,6 +18,22 @@ export async function PATCH(request: Request, routeCtx: RouteContext<'/api/trans
 
   const supabase = supabaseServer();
 
+  const { data: existing, error: fetchError } = await withOwner(
+    supabase.from('transactions').select('amount_cents').eq('id', id),
+    auth
+  ).single();
+
+  if (fetchError || !existing) {
+    return NextResponse.json({ error: 'transaction not found' }, { status: 404 });
+  }
+
+  // Category must agree with the transaction's sign (mirrors the same rule the Gemini
+  // parser enforces) — otherwise story/PDF totals and narrative go inconsistent.
+  const isIncome = existing.amount_cents >= 0;
+  if ((category === 'Pemasukan') !== isIncome) {
+    return NextResponse.json({ error: 'category does not match transaction sign' }, { status: 400 });
+  }
+
   const { data, error } = await withOwner(
     supabase
       .from('transactions')

@@ -64,8 +64,20 @@ export function UploadFlow() {
   }
 
   function retryFailed() {
-    const failed = items.filter((it) => it.status === 'failed' && it.uploadId);
-    runPool(failed, CONCURRENCY, (item) => processFromParse(item.id, item.uploadId!));
+    // Blurry failures need a different photo, not a re-read of the same bytes — those are
+    // retried individually via replaceItem() from the thumbnail itself. Bulk retry here only
+    // covers transient failures ('error'), and re-runs the full pipeline (not just parse) for
+    // any item that failed before it even got an uploadId, so it isn't silently skipped.
+    const retryable = items.filter((it) => it.status === 'failed' && it.failReason !== 'blurry');
+    runPool(retryable, CONCURRENCY, (item) =>
+      item.uploadId ? processFromParse(item.id, item.uploadId) : processFromUpload(item)
+    );
+  }
+
+  function replaceItem(id: string, file: File) {
+    const replacement: ThumbItem = { id, file, previewUrl: URL.createObjectURL(file), status: 'queued' };
+    setItems((prev) => prev.map((it) => (it.id === id ? replacement : it)));
+    processFromUpload(replacement);
   }
 
   const total = items.length;
@@ -99,7 +111,7 @@ export function UploadFlow() {
 
       {settled && failedCount > 0 && (
         <div>
-          <ThumbGrid items={items} />
+          <ThumbGrid items={items} onReplace={replaceItem} />
           <PartialFailCard
             doneCount={doneCount}
             total={total}

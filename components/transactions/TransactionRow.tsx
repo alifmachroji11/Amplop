@@ -36,6 +36,7 @@ export function TransactionRow({
           <>
             <CategorySelect
               value={transaction.category}
+              isIncome={isIncome}
               onChange={(value) => onCategoryChange(transaction.id, value)}
             />
             <button

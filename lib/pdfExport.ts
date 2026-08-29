@@ -26,6 +26,32 @@ function categoryBreakdown(transactions: Transaction[]): { name: string; cents: 
 const RUPIAH_GREEN: [number, number, number] = [20, 110, 60];
 const RUPIAH_RED: [number, number, number] = [160, 40, 30];
 
+// jsPDF's built-in fonts (helvetica/times/courier) only support WinAnsi -- codepoints outside
+// Latin-1 (accented/CJK/emoji, which can show up in a Gemini-OCR'd merchant name) silently
+// render blank instead of erroring. A handful of "smart punctuation" code points above 0xFF
+// (en/em dash, curly quotes, bullet, ellipsis, trademark) still render fine under WinAnsi, so
+// those are allow-listed rather than treated as unsupported.
+const PDF_SAFE_EXTRA_CODE_POINTS = new Set([
+  0x2013, 0x2014, 0x2018, 0x2019, 0x201c, 0x201d, 0x2022, 0x2026, 0x2122,
+]);
+const COMBINING_MARK_MIN = 0x0300;
+const COMBINING_MARK_MAX = 0x036f;
+
+/**
+ * Decompose accents down to plain Latin first (so an accented merchant name keeps reading
+ * close to normal rather than turning into "?"), then fall back to "?" for any remaining
+ * unsupported code point so the PDF degrades visibly instead of silently dropping characters.
+ */
+function safePdfText(s: string): string {
+  let out = '';
+  for (const ch of s.normalize('NFKD')) {
+    const code = ch.codePointAt(0)!;
+    if (code >= COMBINING_MARK_MIN && code <= COMBINING_MARK_MAX) continue;
+    out += code <= 0xff || PDF_SAFE_EXTRA_CODE_POINTS.has(code) ? ch : '?';
+  }
+  return out;
+}
+
 export function buildStoryPdf({ dateRangeLabel, transactions, masukCents, keluarCents }: StoryPdfInput): jsPDF {
   const doc = new jsPDF({ unit: 'pt', format: 'a4' }) as AutoTableDoc;
   const marginX = 40;
@@ -33,7 +59,7 @@ export function buildStoryPdf({ dateRangeLabel, transactions, masukCents, keluar
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(18);
-  doc.text('Amplop — Cerita Keuangan', marginX, y);
+  doc.text('Amplop - Cerita Keuangan', marginX, y);
 
   y += 22;
   doc.setFont('helvetica', 'normal');
@@ -111,7 +137,7 @@ export function buildStoryPdf({ dateRangeLabel, transactions, masukCents, keluar
     head: [['Tanggal', 'Merchant', 'Kategori', 'Jumlah']],
     body: sorted.map((tx) => [
       formatDateId(tx.occurred_at),
-      tx.merchant,
+      safePdfText(tx.merchant),
       tx.category,
       formatRupiah(tx.amount_cents / 100),
     ]),
@@ -134,7 +160,7 @@ function drawFooter(doc: jsPDF, marginX: number, pageNumber: number) {
   doc.setFontSize(8);
   doc.setTextColor(140);
   doc.text(
-    `Dibuat otomatis oleh Amplop — halaman ${pageNumber}`,
+    `Dibuat otomatis oleh Amplop - halaman ${pageNumber}`,
     marginX,
     doc.internal.pageSize.getHeight() - 20
   );
@@ -159,7 +185,7 @@ export async function shareOrDownloadPdf(doc: jsPDF, filename: string, shareText
 
 /**
  * jsPDF's own doc.save() builds its download <a> without attaching it to the DOM before
- * dispatching the click — some Chrome versions silently drop the download in that case.
+ * dispatching the click -- some Chrome versions silently drop the download in that case.
  * Attaching-then-removing the anchor ourselves is the standard reliable workaround.
  */
 function downloadBlob(blob: Blob, filename: string) {
