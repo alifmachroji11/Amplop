@@ -15,26 +15,35 @@ const POINTS = [
 
 export function WhyAmplop() {
   return (
-    <section className="mx-auto w-full max-w-[900px] px-4 pt-20 pb-16 lg:px-16">
-      <div className="mb-10 text-center">
-        <div className="mb-2 font-serif text-[15px] tracking-[0.08em] text-sage uppercase">
-          Kenapa Amplop
+    <section className="mx-auto w-full max-w-[1160px] px-5 pt-24 pb-20 sm:px-8 lg:px-16">
+      <div className="mb-14 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <div className="mb-2 font-serif text-[15px] tracking-[0.08em] text-sage uppercase">
+            Kenapa Amplop
+          </div>
+          <h2 className="max-w-[440px] font-serif text-[32px] leading-[1.15] text-ink lg:text-[42px]">
+            Dibuat biar kamu gak perlu mikir.
+          </h2>
         </div>
-        <h2 className="font-serif text-[28px] text-ink lg:text-[34px]">
-          Dibuat biar kamu gak perlu mikir.
-        </h2>
+        <p className="max-w-[320px] text-sm leading-relaxed text-ink-faint">
+          Tiga hal yang kami pegang teguh setiap kali nambah fitur baru.
+        </p>
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-3">
+      <div className="flex flex-col">
         {POINTS.map((point, i) => (
           <div
             key={point.title}
-            className="animate-fade-up rounded-card border border-border bg-surface p-5 transition-all duration-200 hover:-translate-y-1 hover:border-sage hover:shadow-[0_16px_30px_-18px_rgba(92,107,82,0.45)]"
+            className="group animate-fade-up grid grid-cols-[auto_1fr] items-start gap-6 border-t border-border py-8 transition-colors first:border-t-0 hover:bg-surface/60 sm:grid-cols-[120px_1fr] sm:gap-10 sm:py-10"
             style={{ animationDelay: `${i * 120}ms` }}
           >
-            <div className="mb-3 font-serif text-2xl text-sage-ink">{String(i + 1).padStart(2, '0')}</div>
-            <div className="mb-1.5 text-[15px] font-semibold text-ink">{point.title}</div>
-            <div className="text-sm leading-relaxed text-ink-soft">{point.desc}</div>
+            <div className="font-serif text-4xl leading-none text-border transition-colors duration-300 group-hover:text-sage-tint-2 sm:text-6xl">
+              {String(i + 1).padStart(2, '0')}
+            </div>
+            <div className="max-w-[560px] pt-1 sm:pt-3">
+              <div className="mb-2 font-serif text-xl text-ink sm:text-2xl">{point.title}</div>
+              <div className="text-[15px] leading-relaxed text-ink-soft">{point.desc}</div>
+            </div>
           </div>
         ))}
       </div>

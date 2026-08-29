@@ -32,33 +32,48 @@ export function HeroInteractive() {
   const active = hoveredFrame ?? autoFrame;
 
   return (
-    <div className="grid gap-10 lg:grid-cols-[1fr_1fr] lg:items-center lg:gap-14">
-      <div className="flex flex-col">
+    <div className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-start lg:gap-10">
+      <div className="relative flex flex-col">
+        {/* The dashed thread is the one signature motif of the page — Amplop's wordmark is
+            "Jejak" (trace/trail), so the steps you follow to get there are drawn as a literal
+            trail rather than a plain numbered list. */}
+        <div
+          aria-hidden
+          className="absolute top-[34px] bottom-[34px] left-[16.5px] w-px border-l border-dashed border-sage/40"
+        />
         {STEPS.map((step, i) => (
           <div
             key={step.title}
             onMouseEnter={() => setHoveredFrame(i)}
             onMouseLeave={() => setHoveredFrame(null)}
-            className={`flex gap-4 rounded-card border-t border-border px-3 py-4 transition-colors first:border-t-0 ${
-              active === i ? 'bg-sage-tint/50' : ''
-            }`}
+            className="relative flex gap-4 rounded-card px-3 py-4"
           >
             <div
-              className={`flex h-[34px] w-[34px] flex-shrink-0 items-center justify-center rounded-full font-serif text-[15px] transition-colors duration-300 ${
-                active === i ? 'bg-sage text-white' : 'bg-sage-tint text-sage-ink'
+              className={`relative z-10 flex h-[34px] w-[34px] flex-shrink-0 items-center justify-center rounded-full font-serif text-[15px] transition-all duration-300 ${
+                active === i
+                  ? 'scale-110 bg-sage text-white shadow-[0_6px_16px_-4px_rgba(92,107,82,0.5)]'
+                  : 'bg-surface text-sage-ink ring-1 ring-border'
               }`}
             >
               {i + 1}
             </div>
-            <div>
-              <div className="mb-0.5 text-[15px] font-semibold text-ink">{step.title}</div>
-              <div className="text-sm leading-snug text-ink-soft">{step.desc}</div>
+            <div className="pt-1.5">
+              <div
+                className={`mb-0.5 text-[15px] font-semibold transition-colors duration-300 ${
+                  active === i ? 'text-ink' : 'text-ink-soft'
+                }`}
+              >
+                {step.title}
+              </div>
+              <div className="text-sm leading-snug text-ink-faint">{step.desc}</div>
             </div>
           </div>
         ))}
       </div>
 
-      <DemoCard frame={active} />
+      <div className="lg:mt-6 lg:justify-self-end">
+        <DemoCard frame={active} />
+      </div>
     </div>
   );
 }
